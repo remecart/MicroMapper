@@ -32,6 +32,7 @@ public class ObjectManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        MapManager.instance.LoadMap(Path);
         LoadMap();
     }
 

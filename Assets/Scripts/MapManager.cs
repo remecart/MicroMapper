@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class MapManager : MonoBehaviour
 {
@@ -21,7 +22,8 @@ public class MapManager : MonoBehaviour
         mapPath = path;
     }
     
-    public AudioClip GetAudioClip()
+    
+    public void SetAudioClip(AudioSource source)
     {
         var songName = "song.ogg";
         foreach (var file in Directory.GetFiles(mapPath))
@@ -34,8 +36,26 @@ public class MapManager : MonoBehaviour
                 break;
             }
         }
-        
-        return Resources.Load<AudioClip>(Path.Combine(mapPath,songName));
+
+        StartCoroutine(LoadAudioClip(Path.Combine(mapPath, songName),source));
+    }
+    
+    private IEnumerator LoadAudioClip(string path,AudioSource src)
+    {
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file:///" + path, AudioType.UNKNOWN))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                src.clip = clip;
+            }
+        }
     }
     
     public Info GetMapInfo()

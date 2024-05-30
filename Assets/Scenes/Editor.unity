@@ -3183,8 +3183,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7526578bbf2bc1641a401338652e9da0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filePath: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\CustomWIPLevels\I
-    don't wna cry/kurffew - i dont wna cry (haste) (official audio).wav
   audioSource: {fileID: 1388008689}
 --- !u!82 &1388008689
 AudioSource:
@@ -3667,6 +3665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2058424974}
   - component: {fileID: 2058424973}
+  - component: {fileID: 2058424975}
   m_Layer: 0
   m_Name: FileManager
   m_TagString: Untagged
@@ -3702,6 +3701,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2058424975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058424972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6529053f6f901584d9f09effe8414a20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &156348216924888727
 RectTransform:
   m_ObjectHideFlags: 0

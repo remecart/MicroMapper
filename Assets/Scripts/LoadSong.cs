@@ -5,28 +5,13 @@ using UnityEngine;
 
 public class LoadSong : MonoBehaviour
 {
-    public string filePath; // Path to the Ogg Vorbis audio file
-
     public AudioSource audioSource;
 
-    void Start() {
-        StartCoroutine(GetAudio());
+    void Start()
+    {
+        MapManager.instance.SetAudioClip(audioSource);
     }
 
-    IEnumerator GetAudio() {
-        string fileUrl = "file://" + filePath;
-        using (var www = new WWW(fileUrl)) {
-            yield return www;
-
-            if (!string.IsNullOrEmpty(www.error)) {
-                Debug.LogError("Error loading audio: " + www.error);
-            }
-            else {
-                AudioClip clip = www.GetAudioClip(false, false, Path.GetExtension(filePath) == ".ogg" ? AudioType.OGGVORBIS : AudioType.WAV);
-                audioSource.clip = clip;
-            }
-        }
-    }
 
     public void Offset(float offset) {
         if (audioSource.clip != null) {
