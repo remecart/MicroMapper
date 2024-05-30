@@ -27,14 +27,6 @@ public class FileManager : MonoBehaviour
         return Directory.Exists(beatSaberPath) && Directory.GetDirectories(beatSaberPath).Contains("Beat Saber_Data");
     }
     
-    public Info ConvertToInfo(string value,Mode mode) {
-        if(mode == Mode.Path) {
-            value = File.ReadAllText(value);
-        }
-        
-        return JsonUtility.FromJson<Info>(value);
-    }
-    
     public string GetCustomLevelFolderPath() {
         return Path.Combine(GetBeatSaberPath(), customLevelFolderPath);
     }
@@ -73,9 +65,5 @@ public class FileManager : MonoBehaviour
         return File.ReadAllText(combine);
     }
 
-    public enum Mode
-    {
-        Path,
-        RawData
-    }
+
 }
