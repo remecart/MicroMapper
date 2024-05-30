@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System;
+using System.Linq;
 
 public class ObjectManager : MonoBehaviour
 {
@@ -36,8 +37,14 @@ public class ObjectManager : MonoBehaviour
 
     // Update is called once per frame
     void LoadMap() {
-        string rawData = File.ReadAllText(Path + "\\" + diff.ToString() + beatchar.ToString() + ".dat");
-        beats beat = JsonUtility.FromJson<beats>(rawData);
+        _difficulty[] difficulties = FileManager.instance.GetDifficulties(Path);
+
+        if (!difficulties.Contains(diff))
+        {
+            throw new Exception("No Difficulty of this Type");
+        }
+        
+        beats beat = JsonUtility.FromJson<beats>(FileManager.instance.GetDifficultyFileContent(diff, Path));
 
         for (int i = 0; i < beat.colorNotes.Count; i++) {
             int b = Mathf.FloorToInt(beat.colorNotes[i].b);

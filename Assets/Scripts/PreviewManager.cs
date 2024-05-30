@@ -17,7 +17,7 @@ public class PreviewManager : MonoBehaviour
         cameraTransforms.Add((MainCamera.transform.position,MainCamera.transform.rotation.eulerAngles));
         
         cameraTransforms.Add((new Vector3(8,5,-7.0f),new Vector3(15,-30)));
-        cameraTransforms.Add((new Vector3(0,2,-6.0f),new Vector3(0,0)));
+        cameraTransforms.Add((new Vector3(0,1,-6.0f),new Vector3(0,0)));
     }
     
     public void AddCameraTransform(Vector3 position, Vector3 rotation)
@@ -33,7 +33,7 @@ public class PreviewManager : MonoBehaviour
             if (cnt == 0)
             {
                 var transform1 = MainCamera.transform;
-                cameraTransforms[0] = (transform1.position,transform1.rotation.eulerAngles);
+                cameraTransforms[0] = (transform1.localPosition,transform1.rotation.eulerAngles);
             }
             cnt++;
             UpdateCameraPosition();
@@ -49,7 +49,7 @@ public class PreviewManager : MonoBehaviour
         
         flyScript.enabled = cnt == 0;
         
-        MainCamera.transform.position = cameraTransforms[cnt].Item1;
+        MainCamera.transform.localPosition = cameraTransforms[cnt].Item1;
         MainCamera.transform.rotation = Quaternion.Euler(cameraTransforms[cnt].Item2);
     }
 

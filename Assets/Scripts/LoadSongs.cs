@@ -23,8 +23,13 @@ public class LoadSongs : MonoBehaviour
     void LoadSongsFromPath() {
         string[] folders = Directory.GetDirectories(Path);
         for (int i = 0; i < folders.Length; i++) {
+            
+            if(!folders[i].Contains("info.dat")) {
+                infoPath = "\\Info.dat";
+            }
+            
             string rawData = File.ReadAllText(folders[i] + infoPath);
-            info info = JsonUtility.FromJson<info>(rawData);
+            Info info = JsonUtility.FromJson<Info>(rawData);
             if (File.Exists(folders[i] + infoPath)) {
                 GameObject go = Instantiate(mapPrefab, songPreview.transform, false);
                 go.transform.localScale = new Vector3(1,1,1);
@@ -50,7 +55,7 @@ public class LoadSongs : MonoBehaviour
     }
 }
 
-public class info {
+public class Info {
     public string _version;
     public string _songName;
     public string _songSubName;
