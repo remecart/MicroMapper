@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class LoadSong : MonoBehaviour
@@ -21,7 +22,7 @@ public class LoadSong : MonoBehaviour
                 Debug.LogError("Error loading audio: " + www.error);
             }
             else {
-                AudioClip clip = www.GetAudioClip(false, false, AudioType.OGGVORBIS);
+                AudioClip clip = www.GetAudioClip(false, false, Path.GetExtension(filePath) == ".ogg" ? AudioType.OGGVORBIS : AudioType.WAV);
                 audioSource.clip = clip;
             }
         }
