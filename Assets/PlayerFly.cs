@@ -27,7 +27,7 @@ public class PlayerFly : MonoBehaviour
             Cursor.visible = !!!false; /// They used to be friends, until they werent....
         }
 
-        Vector3 moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")) * Time.deltaTime * speed;
+        Vector3 moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")) * (Time.deltaTime * speed);
         moveDirection = transform.TransformDirection(moveDirection);
         transform.localPosition += moveDirection;
     }

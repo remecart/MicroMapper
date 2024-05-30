@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Transparent : MonoBehaviour
 {
-    bool toggle = true;
-
     public Material material;
     public Transform trans;
 
@@ -18,10 +16,8 @@ public class Transparent : MonoBehaviour
     {
         if (transform.position.z < trans.position.z) {
             ToggleNoteTransparency(1f);
-            toggle = false;
         } else if (transform.position.z >= trans.position.z) {
             ToggleNoteTransparency(0f);
-            toggle = true;
         }
     }
 

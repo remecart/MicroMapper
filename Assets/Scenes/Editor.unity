@@ -1015,15 +1015,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163818aea0adc044293c2147abc2357a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Path: C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels\1effe
-    (Aulture - EOP Glacier)
+  Path: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\CustomWIPLevels\Betteroff
   objects:
   - {fileID: 3899324676697965526}
   - {fileID: 1999312986647724995}
   - {fileID: 1777265082394432343}
   - {fileID: 152994350}
   parent: {fileID: 1094405960}
-  diff: 1
+  diff: 4
   beatchar: 0
   beats:
   - colorNotes: []
@@ -3159,15 +3158,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 233b7581da3795043b785ce5706bb34a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentBeat: 6
-  currentBeatTime: 6
+  currentBeat: 0
+  currentBeatTime: 0
   content: {fileID: 1094405959}
   beatLinesRenderer: {fileID: 620725756}
   gridDuration: 3
   pastGridDuration: 4
   objectManager: {fileID: 1388008685}
   playing: 0
-  bpm: 172
+  bpm: 199.986
   editorScale: 30
   loadSong: {fileID: 1388008688}
   Grid: {fileID: 468619902}
@@ -3183,8 +3182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7526578bbf2bc1641a401338652e9da0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filePath: C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels\1effe
-    (Aulture - EOP Glacier)\song.egg
+  filePath: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\CustomWIPLevels\Betteroff/Betteroff.ogg
   audioSource: {fileID: 1388008689}
 --- !u!82 &1388008689
 AudioSource:
@@ -3377,6 +3375,7 @@ GameObject:
   - component: {fileID: 1715320083}
   - component: {fileID: 1715320082}
   - component: {fileID: 1715320085}
+  - component: {fileID: 1715320086}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3451,13 +3450,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715320081}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.084986515, y: -0.142838, z: 0.012311498, w: 0.98601377}
-  m_LocalPosition: {x: 5.43, y: 2.651, z: -6.93}
+  m_LocalRotation: {x: 0.12636873, y: -0.26476413, z: 0.035021413, w: 0.9553557}
+  m_LocalPosition: {x: 8, y: 5, z: -7.433}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 468619903}
-  m_LocalEulerAnglesHint: {x: 9.853, y: -16.486, z: 0}
+  m_LocalEulerAnglesHint: {x: 15.07, y: -30.98, z: 0}
 --- !u!114 &1715320085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3472,6 +3471,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 16
   rotationSpeed: 300
+--- !u!114 &1715320086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715320081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99b1b9de0068cab498c1a4cd24a511e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flyScript: {fileID: 1715320085}
 --- !u!1 &2010607783
 GameObject:
   m_ObjectHideFlags: 0

@@ -1738,7 +1738,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44336c61c0dd3cf4fae9ab74276bc5db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Path: C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels
+  Path: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\CustomWIPLevels
   WIPPath: 
   mapPrefab: {fileID: 361313608}
   songPreview: {fileID: 2020092476}

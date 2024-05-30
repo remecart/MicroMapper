@@ -12,19 +12,21 @@ public class LoadSongs : MonoBehaviour
     public GameObject mapPrefab;
     public GameObject songPreview;
     public List<Texture> textures;
+    
+    private string infoPath = "\\info.dat";
 
     void Start() {
         LoadSongsFromPath();
+        
     }
 
     void LoadSongsFromPath() {
         string[] folders = Directory.GetDirectories(Path);
         for (int i = 0; i < folders.Length; i++) {
-            string rawData = File.ReadAllText(folders[i] + "\\info.dat");
+            string rawData = File.ReadAllText(folders[i] + infoPath);
             info info = JsonUtility.FromJson<info>(rawData);
-            if (File.Exists(folders[i] + "\\info.dat")) {
-                GameObject go = Instantiate(mapPrefab); 
-                go.transform.SetParent(songPreview.transform, false);
+            if (File.Exists(folders[i] + infoPath)) {
+                GameObject go = Instantiate(mapPrefab, songPreview.transform, false);
                 go.transform.localScale = new Vector3(1,1,1);
 
                 Texture2D texture = new Texture2D(2, 2);
