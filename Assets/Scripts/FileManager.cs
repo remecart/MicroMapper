@@ -31,12 +31,13 @@ public class FileManager : MonoBehaviour
         return Path.Combine(GetBeatSaberPath(), customLevelFolderPath);
     }
     
-    public string GetSongPath(string songName) {
+    public string GetMapPath(string songName) {
         return Path.Combine(GetCustomLevelFolderPath(),songName);
+        
     }
     
-    public string[] GetAllFilesInSongFolder(string songName) {
-        return Directory.GetFiles(GetSongPath(songName));
+    public string[] GetAllFilesInMapFolder(string songName) {
+        return Directory.GetFiles(GetMapPath(songName));
     }
 
     public bool IsDifficultyContained(string songPath, ObjectManager._difficulty difficulty) {

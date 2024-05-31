@@ -7,6 +7,7 @@ using System.Linq;
 
 public class ObjectManager : MonoBehaviour
 {
+    public static ObjectManager instance;
     public string Path;
     public List<GameObject> objects;
     public Transform parent;
@@ -32,6 +33,7 @@ public class ObjectManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        instance = this;
         MapManager.instance.LoadMap(Path);
         LoadMap();
     }

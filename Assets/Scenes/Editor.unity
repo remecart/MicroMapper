@@ -1015,8 +1015,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163818aea0adc044293c2147abc2357a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Path: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\CustomWIPLevels\I
-    don't wna cry
+  Path: C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels\218c9
+    (Chronos Collapse - Water)
   objects:
   - {fileID: 3899324676697965526}
   - {fileID: 1999312986647724995}
@@ -3167,7 +3167,7 @@ MonoBehaviour:
   pastGridDuration: 4
   objectManager: {fileID: 1388008685}
   playing: 0
-  bpm: 199.986
+  bpm: 240
   editorScale: 30
   loadSong: {fileID: 1388008688}
   Grid: {fileID: 468619902}
@@ -3685,7 +3685,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de5520a4ef774134b5d9205b238ec694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beatSaberPath: A:\BS Version Archive\BSManager\BSInstances\1.29.1\Beat Saber_Data\
+  beatSaberPath: C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\CustomLevels\218c9
+    (Chronos Collapse - Water)
 --- !u!4 &2058424974
 Transform:
   m_ObjectHideFlags: 0

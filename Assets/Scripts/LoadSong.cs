@@ -10,6 +10,7 @@ public class LoadSong : MonoBehaviour
     void Start()
     {
         MapManager.instance.SetAudioClip(audioSource);
+        StopSong();
     }
 
 

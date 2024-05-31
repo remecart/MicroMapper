@@ -11,10 +11,15 @@ public class MapManager : MonoBehaviour
     public static MapManager instance;
 
     private string mapPath;
-    private Info mapInfo;
+    public Info mapInfo;
     void Start()
     {
         instance = this;
+
+        string rawData = File.ReadAllText(Path.Combine(FileManager.instance.GetBeatSaberPath(), "info.dat"));
+        mapInfo = JsonUtility.FromJson<Info>(rawData);
+
+        Debug.Log(mapInfo._songFilename);
     }
     
     public void LoadMap(string path)
@@ -25,30 +30,43 @@ public class MapManager : MonoBehaviour
     
     public void SetAudioClip(AudioSource source)
     {
-        var songName = "song.ogg";
-        foreach (var file in Directory.GetFiles(mapPath))
-        {
-            var ext = Path.GetExtension(file);
-            
-            if (ext == ".ogg" || ext == ".wav" || ext == ".egg")
-            {
-                songName = Path.GetFileName(file);
-                break;
-            }
-        }
+        string songPath = Path.Combine(FileManager.instance.GetBeatSaberPath(), mapInfo._songFilename);
+        Debug.Log(songPath + " - " + GetAudioTypeFromExtension(songPath));
 
-        StartCoroutine(LoadAudioClip(Path.Combine(mapPath, songName),source));
+        Debug.Log(songPath + " <- songPath");
+        StartCoroutine(LoadAudioClip(songPath, source, GetAudioTypeFromExtension(songPath)));
     }
     
-    private IEnumerator LoadAudioClip(string path,AudioSource src)
+    private AudioType GetAudioTypeFromExtension(string path)
     {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file:///" + path, AudioType.UNKNOWN))
+        string extension = System.IO.Path.GetExtension(path).ToLower();
+        switch (extension)
+        {
+            case ".ogg":
+                return AudioType.OGGVORBIS;
+            case ".egg":
+                return AudioType.OGGVORBIS;
+            case ".wav":
+                return AudioType.WAV;
+            default:
+                Debug.LogWarning("Unknown audio type for extension: " + extension);
+                return AudioType.UNKNOWN;
+        }
+    }
+
+    private IEnumerator LoadAudioClip(string path, AudioSource src, AudioType audioType)
+    {
+        string url = "file:///" + path;
+
+        Debug.Log("Loading audio from URL: " + url); // Log the URL to debug
+
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(url, audioType))
         {
             yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.Log(www.error);
+                Debug.LogError("Error loading audio: " + www.error);
             }
             else
             {

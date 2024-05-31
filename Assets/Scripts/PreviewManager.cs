@@ -17,7 +17,7 @@ public class PreviewManager : MonoBehaviour
         cameraTransforms.Add((MainCamera.transform.position,MainCamera.transform.rotation.eulerAngles));
         
         cameraTransforms.Add((new Vector3(8,5,-7.0f),new Vector3(15,-30)));
-        cameraTransforms.Add((new Vector3(0,1,-6.0f),new Vector3(0,0)));
+        cameraTransforms.Add((new Vector3(1.5f,1,-6.0f),new Vector3(0,0)));
     }
     
     public void AddCameraTransform(Vector3 position, Vector3 rotation)

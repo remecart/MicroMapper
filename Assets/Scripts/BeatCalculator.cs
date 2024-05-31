@@ -1,154 +1,168 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class BeatCalculator : MonoBehaviour
 {
-    public float currentBeat;
-    public float currentBeatTime;
-    public GameObject content;
+    public static BeatCalculator instance;
     public BeatLinesRenderer beatLinesRenderer;
-    public int gridDuration;
-    public int pastGridDuration;
-
-    public ObjectManager objectManager;
-    public bool playing;
     public float bpm;
-
-    public float editorScale;
+    public int currentBeat;
+    public float currentTimeScroll;
+    public float currentBeatTime;
+    public int spawnOffset;
+    public int despawnOffset;
+    public int editorScale;
     public LoadSong loadSong;
-    public GameObject Grid;
+    public Transform Grid;
+    public Transform content;
+    public bool playing;
+    private float startTime;
 
-    // Start is called before the first frame update
     void Start()
     {
-        LoadNearbyObjects();
+        instance = this;
+        bpm = MapManager.instance.mapInfo._beatsPerMinute;
     }
 
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.Space) && playing == false) {
-            PlayMap();
-            currentBeatTime = currentBeat;
-            playing = true;
-            loadSong.Offset(GetRealTimeFrom(currentBeat));
-        } else if (Input.GetKeyDown(KeyCode.Space) && playing == true) {
-            playing = false;
-            LoadNearbyObjects();
-            loadSong.StopSong();
-        }
-
-        if (Input.mouseScrollDelta.y > 0 && playing == false) {
-            currentBeat++;
-            LoadNearbyObjects();
-        } else if (Input.mouseScrollDelta.y < 0 && currentBeat > 0f && playing == false) {
-            currentBeat--;
-            LoadNearbyObjects();
-        }
-    }
-
-    // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        if (playing) {
-            currentBeatTime += Time.deltaTime * (GetBpmAtBeat(currentBeatTime) / 60f);
-            
-            if (currentBeatTime > currentBeat) {
-                currentBeat++;
-                PlayMap();
+        if (Input.mouseScrollDelta.y > 0 && !playing)
+        {
+            currentBeat++;
+            ScrollObjects(currentBeat, 1);
+        }
+        else if (Input.mouseScrollDelta.y < 0 && currentBeat > 0 && !playing)
+        {
+            currentBeat--;
+            ScrollObjects(currentBeat, -1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (!playing)
+            {
+                HitSoundManager.instance.ClearSounds(currentBeat);
+                LoadObjects(currentBeat);
+                currentBeatTime = currentBeat;
+                startTime = Time.unscaledTime - GetRealTimeFromBeat(currentBeat);
+                playing = true;
+                loadSong.Offset(GetRealTimeFromBeat(currentBeat));
+            }
+            else
+            {
+                playing = false;
+                currentBeat = Mathf.RoundToInt(currentBeatTime);
+                LoadObjects(currentBeat);
+                loadSong.StopSong();
+            }
+        }
+
+        if (playing)
+        {
+            // Sync currentBeatTime with the actual elapsed time based on the music start time
+            float elapsedTime = Time.unscaledTime - startTime;
+            currentBeatTime = BeatFromRealTime(elapsedTime);
+
+            if (currentBeatTime >= currentBeat + 1)
+            {
+                currentBeat = Mathf.FloorToInt(currentBeatTime);
+                ScrollObjects(currentBeat, 1);
             }
 
-            Grid.transform.position = new Vector3(Grid.transform.position.x, Grid.transform.position.y, Grid.transform.position.z + Time.deltaTime * editorScale);
+            Grid.localPosition = new Vector3(0, 0, PositionFromBeat(currentBeatTime) * editorScale);
         }
     }
 
-    void LoadNearbyObjects() {
-        foreach (Transform child in content.transform) {
+    void LoadObjects(int beat)
+    {
+        foreach (Transform child in content.transform)
+        {
             Destroy(child.gameObject);
         }
-        
-        int beat = Mathf.FloorToInt(currentBeat);
+
+        Grid.localPosition = new Vector3(0, 0, PositionFromBeat(beat) * editorScale);
         beatLinesRenderer.DrawLines(currentBeat);
         beatLinesRenderer.updateNumbers(currentBeat);
-        Grid.transform.position = new Vector3(Grid.transform.position.x, Grid.transform.position.y, Zpos(beat) * editorScale);
 
-        for (int i = 0; i < gridDuration + pastGridDuration; i++) {
-            if (beat - pastGridDuration + i >= 0) {
-                List<colorNotes> notes = objectManager.beats[beat - pastGridDuration + i].colorNotes;
-                for (int a = 0; a < notes.Count; a++) {
-                    colorNotes note = notes[a];
-                    GameObject currentNote = Instantiate(objectManager.objects[note.c]);
-                    currentNote.transform.SetParent(content.transform);
-                    currentNote.transform.localPosition = new Vector3(note.x, note.y, Zpos(note.b) * editorScale);
-                    if (note.d != 8) {
-                        currentNote.transform.rotation = Quaternion.Euler(0, 0, Rotation(note.d));
-                        currentNote.transform.GetChild(1).gameObject.SetActive(false);
-                    }
-                    else currentNote.transform.GetChild(0).gameObject.SetActive(false);
-                }
-
-                List<bombNotes> bombs = objectManager.beats[beat - pastGridDuration + i].bombNotes;
-                for (int a = 0; a < bombs.Count; a++) {
-                    bombNotes bomb = bombs[a];
-                    GameObject currentBomb = Instantiate(objectManager.objects[2]);
-                    currentBomb.transform.SetParent(content.transform);
-                    currentBomb.transform.localPosition = new Vector3(bomb.x, bomb.y, Zpos(bomb.b) * editorScale);
-                }
-
-                List<bpmEvents> bpmEvents = objectManager.beats[beat - pastGridDuration + i].bpmEvents;
-                for (int a = 0; a < bpmEvents.Count; a++) {
-                    bpmEvents bpm = bpmEvents[a];
-                    GameObject bpmEvent = Instantiate(objectManager.objects[3]);
-                    bpmEvent.transform.SetParent(content.transform);
-                    bpmEvent.transform.localPosition = new Vector3(8f, 0, Zpos(bpm.b) * editorScale);
-                    bpmEvent.transform.GetChild(0).gameObject.GetComponent<TextMeshPro>().text = bpm.m.ToString();
-                }
+        for (int i = 0; i < spawnOffset + despawnOffset + 1; i++)
+        {
+            if (beat - despawnOffset + i >= 0)
+            {
+                SpawnObjectsAtBeat(beat - despawnOffset + i);
             }
         }
     }
 
-    void PlayMap() {
-        foreach (Transform child in content.transform) {
-            if (child.transform.position.z < -pastGridDuration) Destroy(child.gameObject);
-        }
+    void ScrollObjects(int beat, int scrollOffset)
+    {
+        Grid.localPosition = new Vector3(0, 0, PositionFromBeat(beat + scrollOffset) * editorScale);
+        if (Grid.localPosition.z < 0) Grid.localPosition = new Vector3(0, 0, 0);
+
+        beatLinesRenderer.DrawLines(beat);
+        beatLinesRenderer.updateNumbersInScroll(beat, scrollOffset);
         
-        int beat = Mathf.FloorToInt(currentBeat);
-        int spawnBeat = beat + gridDuration;
-        beatLinesRenderer.DrawLines(currentBeat);
-        beatLinesRenderer.updateNumbersInPlay(currentBeat);
-        
-        List<colorNotes> notes = objectManager.beats[spawnBeat].colorNotes;
-        for (int a = 0; a < notes.Count; a++) {
-            colorNotes note = notes[a];
-            GameObject currentNote = Instantiate(objectManager.objects[note.c]);
-            currentNote.transform.SetParent(content.transform);
-            currentNote.transform.localPosition = new Vector3(note.x, note.y, Zpos(note.b) * editorScale);
-            if (note.d != 8) {
-                currentNote.transform.rotation = Quaternion.Euler(0, 0, Rotation(note.d));
-                currentNote.transform.GetChild(1).gameObject.SetActive(false);
+        if (scrollOffset == 1)
+        {
+            foreach (Transform child in content.transform)
+            {
+                if (child.transform.position.z < PositionFromBeat(beat - despawnOffset) * editorScale)
+                    Destroy(child.gameObject);
             }
-            else currentNote.transform.GetChild(0).gameObject.SetActive(false);
+            int spawnBeat = beat + spawnOffset;
+            if (spawnBeat >= 0) SpawnObjectsAtBeat(spawnBeat);
         }
-
-        List<bombNotes> bombs = objectManager.beats[spawnBeat].bombNotes;
-        for (int a = 0; a < bombs.Count; a++) {
-            bombNotes bomb = bombs[a];
-            GameObject currentBomb = Instantiate(objectManager.objects[2]);
-            currentBomb.transform.SetParent(content.transform);
-            currentBomb.transform.localPosition = new Vector3(bomb.x, bomb.y, Zpos(bomb.b) * editorScale);
-        }
-
-        List<bpmEvents> bpmEvents = objectManager.beats[spawnBeat].bpmEvents;
-        for (int a = 0; a < bpmEvents.Count; a++) {
-            bpmEvents bpmChange = bpmEvents[a];
-            GameObject bpmEvent = Instantiate(objectManager.objects[3]);
-            bpmEvent.transform.SetParent(content.transform);
-            bpmEvent.transform.localPosition = new Vector3(8f, 0, Zpos(bpmChange.b) * editorScale);
-            bpmEvent.transform.GetChild(0).gameObject.GetComponent<TextMeshPro>().text = bpmChange.m.ToString();
+        else if (scrollOffset == -1)
+        {
+            foreach (Transform child in content.transform)
+            {
+                if (child.transform.position.z > PositionFromBeat(beat + spawnOffset) * editorScale)
+                    Destroy(child.gameObject);
+            }
+            int spawnBeat = beat - despawnOffset;
+            if (spawnBeat >= 0) SpawnObjectsAtBeat(spawnBeat);
         }
     }
 
-    public int Rotation(int level) {
+    void SpawnObjectsAtBeat(int beat)
+    {
+        // Load Note Objects
+        List<colorNotes> notes = ObjectManager.instance.beats[beat].colorNotes;
+        foreach (var noteData in notes)
+        {
+            GameObject note = Instantiate(ObjectManager.instance.objects[noteData.c]);
+            note.transform.SetParent(content);
+            note.transform.localPosition = new Vector3(noteData.x, noteData.y, PositionFromBeat(noteData.b) * editorScale);
+            if (noteData.d != 8)
+            {
+                note.transform.rotation = Quaternion.Euler(0, 0, Rotation(noteData.d));
+                note.transform.GetChild(1).gameObject.SetActive(false);
+            }
+            else note.transform.GetChild(0).gameObject.SetActive(false);
+        }
+
+        // Load Bomb Objects
+        List<bombNotes> bombs = ObjectManager.instance.beats[beat].bombNotes;
+        foreach (var bombData in bombs)
+        {
+            GameObject bomb = Instantiate(ObjectManager.instance.objects[2]);
+            bomb.transform.SetParent(content);
+            bomb.transform.localPosition = new Vector3(bombData.x, bombData.y, PositionFromBeat(bombData.b) * editorScale);
+        }
+
+        // Load Bpm Objects
+        List<bpmEvents> bpmChanges = ObjectManager.instance.beats[beat].bpmEvents;
+        foreach (var bpmChangeData in bpmChanges)
+        {
+            GameObject bpmChange = Instantiate(ObjectManager.instance.objects[3]);
+            bpmChange.transform.SetParent(content);
+            bpmChange.transform.localPosition = new Vector3(8, 0, PositionFromBeat(bpmChangeData.b) * editorScale);
+            bpmChange.transform.GetChild(0).gameObject.GetComponent<TextMeshPro>().text = bpmChangeData.m.ToString();
+        }
+    }
+
+    public int Rotation(int level)
+    {
         return level switch
         {
             0 => 180,
@@ -163,92 +177,140 @@ public class BeatCalculator : MonoBehaviour
         };
     }
 
-    public float Zpos(float beat) {
-
-        List<bpmEvents> bpms = objectManager.bpmEvents;
-        float value = 0;
-        int number = 0;
-
+    public float PositionFromBeat(float beat)
+    {
+        List<bpmEvents> bpms = ObjectManager.instance.bpmEvents;
         float position = 0;
+        float previousBpm = bpm;
+        float previousBeat = 0f;
 
-        for (int i = 0; i < bpms.Count; i++) {
-            if (i + 1 < bpms.Count) {
-                if (bpms[i + 1].b - value <= beat) {
-                    float duration = bpms[i + 1].b - bpms[i].b;
-                    value += duration;
-                    position += + duration * (60f / bpms[i].m);
-                    number += 1;
-                }
+        foreach (var bpmEvent in bpms)
+        {
+            if (beat <= bpmEvent.b)
+            {
+                break;
             }
+
+            float duration = bpmEvent.b - previousBeat;
+            position += duration * (60f / previousBpm);
+
+            previousBpm = bpmEvent.m;
+            previousBeat = bpmEvent.b;
         }
-        
-        position += (beat - bpms[number].b) * (60f / bpms[number].m);
+
+        float remainingDuration = beat - previousBeat;
+        position += remainingDuration * (60f / previousBpm);
+
         return position;
     }
 
-    public float BeatFromPosition(float position) {
-        List<bpmEvents> bpms = objectManager.bpmEvents;
+    public float BeatFromPosition(float position)
+    {
+        List<bpmEvents> bpms = ObjectManager.instance.bpmEvents;
         float _beat = 0;
         float accumulatedPosition = 0;
-
-        for (int i = 0; i < bpms.Count; i++) {
-            if (i + 1 < bpms.Count) {
+        for (int i = 0; i < bpms.Count; i++)
+        {
+            if (i + 1 < bpms.Count)
+            {
                 float nextBeatTime = bpms[i + 1].b;
                 float duration = nextBeatTime - bpms[i].b;
                 float sectionPosition = duration * (60f / bpms[i].m);
 
-                if (accumulatedPosition + sectionPosition >= position) {
+                if (accumulatedPosition + sectionPosition >= position)
+                {
                     float remainingPosition = position - accumulatedPosition;
                     _beat = bpms[i].b + (remainingPosition / (60f / bpms[i].m));
                     return _beat;
-                } else {
+                }
+                else
+                {
                     accumulatedPosition += sectionPosition;
                 }
-            } else {
-                // If we are at the last bpm event, we calculate based on the remaining position
+            }
+            else
+            {
                 float remainingPosition = position - accumulatedPosition;
                 _beat = bpms[i].b + (remainingPosition / (60f / bpms[i].m));
                 Debug.Log(_beat + " - " + position);
                 return _beat;
-           }
+            }
         }
         Debug.Log(_beat + " - " + position);
-        return _beat; // In case position exceeds the total length covered by bpmEvents
+        return _beat;
     }
 
-    public float GetBpmAtBeat(float beat) {
-
-        List<bpmEvents> bpms = objectManager.bpmEvents;
+    public float GetBpmAtBeat(float beat)
+    {
+        List<bpmEvents> bpms = ObjectManager.instance.bpmEvents;
         float value = bpm;
 
-        for (int i = 0; i < bpms.Count; i++) {
-            if (bpms[i].b <= beat) {
-                value = bpms[i].m;
+        for (int i = 0; i < bpms.Count; i++)
+        {
+            if (bpms[i].b > beat)
+            {
+                break;
             }
+            value = bpms[i].m;
         }
         return value;
     }
 
-    public float GetRealTimeFrom(float beat) {
-
-        List<bpmEvents> bpms = objectManager.bpmEvents;
-        float value = 0;
-        int number = 0;
-
+    public float GetRealTimeFromBeat(float beat)
+    {
+        List<bpmEvents> bpms = ObjectManager.instance.bpmEvents;
         float realTime = 0;
+        float previousBpm = bpm;
+        float previousBeat = 0;
 
-        for (int i = 0; i < bpms.Count; i++) {
-            if (i + 1 < bpms.Count) {
-                if (bpms[i + 1].b - value <= beat) {
-                    float duration = bpms[i + 1].b - bpms[i].b;
-                    value += duration;
-                    realTime += + duration * (60f / bpms[i].m);
-                    number += 1;
+        foreach (var bpmEvent in bpms)
+        {
+            if (beat <= bpmEvent.b)
+            {
+                realTime += (beat - previousBeat) * (60f / previousBpm);
+                return realTime;
+            }
+            realTime += (bpmEvent.b - previousBeat) * (60f / previousBpm);
+            previousBpm = bpmEvent.m;
+            previousBeat = bpmEvent.b;
+        }
+        realTime += (beat - previousBeat) * (60f / previousBpm);
+        return realTime;
+    }
+
+
+    public float BeatFromRealTime(float realTime)
+    {
+        List<bpmEvents> bpms = ObjectManager.instance.bpmEvents;
+        float beat = 0;
+        float accumulatedTime = 0;
+
+        for (int i = 0; i < bpms.Count; i++)
+        {
+            if (i + 1 < bpms.Count)
+            {
+                float nextBeatTime = bpms[i + 1].b;
+                float bpmDuration = (nextBeatTime - bpms[i].b) * (60f / bpms[i].m);
+
+                if (accumulatedTime + bpmDuration >= realTime)
+                {
+                    float remainingTime = realTime - accumulatedTime;
+                    beat = bpms[i].b + (remainingTime / (60f / bpms[i].m));
+                    return beat;
                 }
+                else
+                {
+                    accumulatedTime += bpmDuration;
+                }
+            }
+            else
+            {
+                float remainingTime = realTime - accumulatedTime;
+                beat = bpms[i].b + (remainingTime / (60f / bpms[i].m));
+                return beat;
             }
         }
 
-        realTime += (beat - bpms[number].b) * (60f / bpms[number].m);
-        return realTime;
+        return beat;
     }
 }
